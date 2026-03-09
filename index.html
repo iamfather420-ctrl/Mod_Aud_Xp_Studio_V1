@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#000000">
+    <title>AGATE // QUANTUM FORENSIC OS v4.0</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;500;700&family=Share+Tech+Mono&display=swap');
+        
+        :root {
+            --void: #000000;
+            --nebula: #0a0a1f;
+            --plasma: #00f0ff;
+            --singularity: #b829dd;
+            --event-horizon: #ff006e;
+            --dark-matter: #1a1a3e;
+            --antimatter: #ffffff;
+            --graviton: rgba(0, 240, 255, 0.1);
+            --tachyon: rgba(184, 41, 221, 0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: var(--void);
+            color: var(--antimatter);
+            font-family: 'Rajdhani', sans-serif;
+            overflow: hidden;
+            position: relative;
+            height: 100vh;
+            touch-action: none;
+        }
+        
+        /* === QUANTUM FIELD BACKGROUND === */
+        #quantum-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+        
+        /* === HOLOGRAPHIC UI LAYER === */
+        .hologram-layer {
+            position: relative;
+            z-index: 10;
+            height: 100vh;
+            display: grid;
+            grid-template-rows: 60px 1fr 80px;
+            padding: 10px;
+            gap: 10px;
+        }
+        
+        /* === NEURAL STATUS BAR === */
+        .neural-bar {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            background: linear-gradient(90deg, transparent, var(--graviton), transparent);
+            border: 1px solid var(--plasma);
+            border-radius: 30px;
+            padding: 8px 20px;
+            backdrop-filter: blur(20px);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .neural-bar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0,240,255,0.2), transparent);
+            animation: neural-scan 3s linear infinite;
+        }
+        
+        @keyframes neural-scan {
+            to { left: 100%; }
+        }
+        
+        .quantum-status {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 11px;
+            color: var(--plasma);
+            text-shadow: 0 0 10px var(--plasma);
+        }
+        
+        .core-indicator {
+            text-align: center;
+        }
+        
+        .core-pulse {
+            width: 40px;
+            height: 40px;
+            border: 2px solid var(--event-horizon);
+            border-radius: 50%;
+            margin: 0 auto;
+            position: relative;
+            animation: core-beat 2s ease-in-out infinite;
+        }
+        
+        @keyframes core-beat {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 20px var(--event-horizon); }
+            50% { transform: scale(1.1); box-shadow: 0 0 40px var(--event-horizon); }
+        }
+        
+        .core-pulse::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 10px;
+            height: 10px;
+            background: var(--event-horizon);
+            border-radius: 50%;
+            animation: core-glow 1s ease-in-out infinite alternate;
+        }
+        
+        @keyframes core-glow {
+            from { opacity: 0.5; }
+            to { opacity: 1; box-shadow: 0 0 20px var(--event-horizon); }
+        }
+        
+        /* === MAIN WORKSPACE === */
+        .quantum-workspace {
+            display: grid;
+            grid-template-columns: 60px 1fr 60px;
+            gap: 10px;
+            overflow: hidden;
+        }
+        
+        /* === VERTICAL TOOLBARS === */
+        .toolbar-vert {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 10px;
+            background: var(--graviton);
+            border: 1px solid var(--plasma);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .tool-node {
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--plasma);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            font-size: 18px;
+        }
+        
+        .tool-node:hover, .tool-node.active {
+            background: var(--plasma);
+            color: var(--void);
+            box-shadow: 0 0 20px var(--plasma);
+            transform: scale(1.1);
+        }
+        
+        .tool-node::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255,255,255,0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .tool-node:active::before {
+            width: 100px;
+            height: 100px;
+        }
+        
+        /* === CENTRAL VIEWPORT === */
+        .viewport {
+            position: relative;
+            background: var(--nebula);
+            border: 1px solid var(--singularity);
+            border-radius: 20px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .viewport-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background: linear-gradient(90deg, var(--void), var(--dark-matter));
+            border-bottom: 1px solid var(--singularity);
+        }
+        
+        .viewport-title {
+            font-size: 12px;
+            color: var(--plasma);
+            letter-spacing: 2px;
+        }
+        
+        .viewport-controls {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .v-control {
+            width: 30px;
+            height: 30px;
+            border: 1px solid var(--singularity);
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+        
+        .v-control:hover {
+            background: var(--singularity);
+            box-shadow: 0 0 10px var(--singularity);
+        }
+        
+        /* === MODULES === */
+        .module-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .quantum-module {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transform: scale(0.9) rotateY(10deg);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
+            padding: 15px;
+            overflow-y: auto;
+        }
+        
+        .quantum-module.active {
+            opacity: 1;
+            transform: scale(1) rotateY(0);
+            pointer-events: all;
+        }
+        
+        /* === FORENSIC CAPTURE MODULE === */
+        .capture-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            height: 100%;
+        }
+        
+        .quantum-lens {
+            position: relative;
+            background: var(--void);
+            border: 2px solid var(--plasma);
+            border-radius: 15px;
+            overflow: hidden;
+            grid-row: span 2;
+        }
+        
+        .lens-feed {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: contrast(1.2) saturate(1.5) hue-rotate(180deg);
+        }
+        
+        .lens-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(45deg, transparent 48%, rgba(0,240,255,0.1) 50%, transparent 52%),
+                linear-gradient(-45deg, transparent 48%, rgba(0,240,255,0.1) 50%, transparent 52%);
+            background-size: 20px 20px;
+            pointer-events: none;
+        }
+        
+        .lens-hud {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            display: flex;
+            justify-content: space-between;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 10px;
+            color: var(--plasma);
+            text-shadow: 0 0 5px var(--plasma);
+        }
+        
+        .lens-reticle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100px;
+            height: 100px;
+            border: 1px solid var(--event-horizon);
+            border-radius: 50%;
+            animation: reticle-pulse 2s infinite;
+        }
+        
+        @keyframes reticle-pulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
+            50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+        }
+        
+        .lens-reticle::before, .lens-reticle::after {
+            content: '';
+            position: absolute;
+            border: 1px solid var(--event-horizon);
+            border-radius: 50%;
+        }
+        
+        .lens-reticle::before {
+            top: 20%; left: 20%; right: 20%; bottom: 20%;
+        }
+        
+        .lens-reticle::after {
+            top: 35%; left: 35%; right: 35%; bottom: 35%;
+            background: rgba(255,0,110,0.2);
+        }
+        
+        .capture-metrics {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .metric-card {
+            background: var(--graviton);
+            border: 1px solid var(--plasma);
+            border-radius: 10px;
+            padding: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .metric-label {
+            font-size: 9px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .metric-value {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 18px;
+            color: var(--plasma);
+            margin-top: 5px;
+        }
+        
+        .metric-bar {
+            height: 3px;
+            background: var(--dark-matter);
+            margin-top: 8px;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        
+        .metric-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--plasma), var(--singularity));
+            width: 0%;
+            transition: width 1s;
+        }
+        
+        /* === SYNTH MODULE === */
+        .synth-arena {
+            display: grid;
+            grid-template-rows: 1fr auto;
+            gap: 15px;
+            height: 100%;
+        }
+        
+        .waveform-display {
+            background: var(--void);
+            border: 1px solid var(--singularity);
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        #waveform-canvas {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .synth-matrix {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+        
+        .synth-cell {
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, var(--graviton), var(--tachyon));
+            border: 1px solid var(--singularity);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .synth-cell::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(184,41,221,0.3), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .synth-cell:hover::before, .synth-cell.active::before {
+            opacity: 1;
+        }
+        
+        .synth-cell:active {
+            transform: scale(0.95);
+            border-color: var(--event-horizon);
+        }
+        
+        .cell-icon {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+        
+        .cell-label {
+            font-size: 8px;
+            color: #aaa;
+            text-transform: uppercase;
+        }
+        
+        /* === RENDER MODULE === */
+        .render-chamber {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            gap: 20px;
+        }
+        
+        .quantum-sphere {
+            width: 150px;
+            height: 150px;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: sphere-rotate 10s linear infinite;
+        }
+        
+        @keyframes sphere-rotate {
+            from { transform: rotateX(0) rotateY(0); }
+            to { transform: rotateX(360deg) rotateY(360deg); }
+        }
+        
+        .sphere-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            border: 2px solid var(--plasma);
+            border-radius: 50%;
+            transform-style: preserve-3d;
+            box-shadow: 0 0 20px var(--plasma);
+        }
+        
+        .sphere-ring:nth-child(1) {
+            width: 100%;
+            height: 100%;
+            transform: translate(-50%, -50%) rotateX(0deg);
+        }
+        
+        .sphere-ring:nth-child(2) {
+            width: 100%;
+            height: 100%;
+            transform: translate(-50%, -50%) rotateX(60deg);
+        }
+        
+        .sphere-ring:nth-child(3) {
+            width: 100%;
+            height: 100%;
+            transform: translate(-50%, -50%) rotateX(120deg);
+        }
+        
+        .render-controls {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .quantum-btn {
+            padding: 15px 30px;
+            background: transparent;
+            border: 2px solid var(--plasma);
+            color: var(--plasma);
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            font-size: 12px;
+            letter-spacing: 2px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+            text-transform: uppercase;
+        }
+        
+        .quantum-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, var(--plasma), transparent);
+            transition: left 0.5s;
+        }
+        
+        .quantum-btn:hover::before {
+            left: 100%;
+        }
+        
+        .quantum-btn:hover {
+            background: var(--plasma);
+            color: var(--void);
+            box-shadow: 0 0 30px var(--plasma);
+        }
+        
+        /* === BOTTOM COMMAND BAR === */
+        .command-bar {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .terminal-stream {
+            background: rgba(0,20,0,0.9);
+            border: 1px solid var(--plasma);
+            border-radius: 10px;
+            padding: 10px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 9px;
+            color: var(--plasma);
+            height: 60px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .terminal-line {
+            opacity: 0.8;
+            margin-bottom: 3px;
+            animation: terminal-flicker 0.1s;
+        }
+        
+        @keyframes terminal-flicker {
+            0% { opacity: 0; }
+            100% { opacity: 0.8; }
+        }
+        
+        .mode-selector {
+            display: flex;
+            gap: 5px;
+            background: var(--graviton);
+            padding: 5px;
+            border-radius: 25px;
+            border: 1px solid var(--plasma);
+        }
+        
+        .mode-btn {
+            padding: 10px 20px;
+            background: transparent;
+            border: none;
+            color: #888;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            font-size: 11px;
+            cursor: pointer;
+            border-radius: 20px;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .mode-btn.active {
+            background: var(--plasma);
+            color: var(--void);
+            box-shadow: 0 0 15px var(--plasma);
+        }
+        
+        .system-stats {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 9px;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            color: var(--plasma);
+            font-size: 14px;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 8px;
+            text-transform: uppercase;
+        }
+        
+        /* === CUSTOMIZATION PANEL === */
+        .customization-drawer {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 100%;
+            max-width: 400px;
+            height: 100vh;
+            background: rgba(10,10,31,0.98);
+            border-left: 2px solid var(--plasma);
+            z-index: 1000;
+            transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .customization-drawer.open {
+            right: 0;
+        }
+        
+        .drawer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--plasma);
+        }
+        
+        .drawer-title {
+            font-size: 18px;
+            color: var(--plasma);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .close-drawer {
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--plasma);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.3s;
+        }
+        
+        .close-drawer:hover {
+            background: var(--plasma);
+            color: var(--void);
+            transform: rotate(90deg);
+        }
+        
+        .custom-section {
+            margin-bottom: 25px;
+        }
+        
+        .custo
