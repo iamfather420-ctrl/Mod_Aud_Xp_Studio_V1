@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0a0a1a">
+    <title>AGATE // QUANTUM FORENSIC OS v4.0</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;500;700&family=Share+Tech+Mono&display=swap');
+        
+        :root {
+            --void: #000000;
+            --nebula: #0a0a1f;
+            --plasma: #00f0ff;
+            --singularity: #b829dd;
+            --event-horizon: #ff006e;
+            --dark-matter: #1a1a3e;
+            --antimatter: #ffffff;
+            --matrix: #00ff41;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background: var(--void);
+            color: var(--antimatter);
+            font-family: 'Rajdhani', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            touch-action: none;
+        }
+        
+        /* Fallback background if canvas fails */
+        .fallback-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(0,240,255,0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(184,41,221,0.15) 0%, transparent 50%),
+                linear-gradient(180deg, #0a0a1a 0%, #000000 100%);
+            z-index: 0;
+            animation: bgPulse 4s ease-in-out infinite;
+        }
+        
+        @keyframes bgPulse {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; }
+        }
+        
+        #quantum-canvas {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1;
+            display: none; /* Hidden by default, enabled by JS if working */
+        }
+        
+        .hologram-layer {
+            position: relative;
+            z-index: 10;
+            height: 100vh;
+            display: grid;
+            grid-template-rows: 60px 1fr 80px;
+            padding: 10px;
+            gap: 10px;
+        }
+        
+        .neural-bar {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            background: rgba(0,0,0,0.8);
+            border: 1px solid var(--plasma);
+            border-radius: 30px;
+            padding: 8px 15px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 10px;
+        }
+        
+        .quantum-status { color: var(--plasma); text-shadow: 0 0 10px var(--plasma); }
+        
+        .core-pulse {
+            width: 35px; height: 35px;
+            border: 2px solid var(--event-horizon);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+            position: relative;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 20px var(--event-horizon); transform: scale(1); }
+            50% { box-shadow: 0 0 40px var(--event-horizon); transform: scale(1.1); }
+        }
+        
+        .core-pulse::after {
+            content: ''; position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 8px; height: 8px;
+            background: var(--event-horizon);
+            border-radius: 50%;
+        }
+        
+        .quantum-workspace {
+            display: grid;
+            grid-template-columns: 50px 1fr 50px;
+            gap: 10px;
+        }
+        
+        .toolbar-vert {
+            display: flex; flex-direction: column; gap: 8px;
+            padding: 10px;
+            background: rgba(0,240,255,0.1);
+            border: 1px solid var(--plasma);
+            border-radius: 15px;
+        }
+        
+        .tool-node {
+            width: 30px; height: 30px;
+            border: 1px solid var(--plasma);
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .tool-node:hover, .tool-node.active {
+            background: var(--plasma); color: var(--void);
+            box-shadow: 0 0 15px var(--plasma);
+        }
+        
+        .viewport {
+            background: var(--nebula);
+            border: 1px solid var(--singularity);
+            border-radius: 15px;
+            overflow: hidden;
+            display: flex; flex-direction: column;
+        }
+        
+        .viewport-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 8px 12px;
+            background: linear-gradient(90deg, var(--void), var(--dark-matter));
+            border-bottom: 1px solid var(--singularity);
+            font-size: 11px;
+        }
+        
+        .viewport-title { color: var(--plasma); letter-spacing: 2px; }
+        
+        .module-container { flex: 1; position: relative; overflow: hidden; }
+        
+        .quantum-module {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0; transform: scale(0.95);
+            transition: all 0.4s ease-out;
+            pointer-events: none;
+            padding: 12px;
+            overflow-y: auto;
+        }
+        
+        .quantum-module.active {
+            opacity: 1; transform: scale(1); pointer-events: all;
+        }
+        
+        /* Capture Module */
+        .capture-grid {
+            display: grid; grid-template-columns: 1fr;
+            gap: 10px; height: 100%;
+        }
+        
+        .quantum-lens {
+            position: relative;
+            background: #000;
+            border: 2px solid var(--plasma);
+            border-radius: 12px;
+            overflow: hidden;
+            height: 200px;
+        }
+        
+        .lens-feed {
+            width: 100%; height: 100%; object-fit: cover;
+            filter: contrast(1.1) saturate(1.2);
+        }
+        
+        .lens-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: repeating-linear-gradient(
+                0deg, transparent, transparent 2px, rgba(0,240,255,0.03) 2px, rgba(0,240,255,0.03) 4px
+            );
+            pointer-events: none;
+        }
+        
+        .lens-hud {
+            position: absolute; top: 8px; left: 8px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 9px; color: var(--event-horizon);
+            text-shadow: 0 0 5px #000;
+        }
+        
+        .lens-reticle {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px; height: 80px;
+            border: 1px solid var(--event-horizon);
+            border-radius: 50%;
+            animation: reticlePulse 2s infinite;
+        }
+        
+        @keyframes reticlePulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
+            50% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+        }
+        
+        .capture-metrics {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        
+        .metric-card {
+            background: rgba(0,0,0,0.6);
+            border: 1px solid var(--plasma);
+            border-radius: 8px;
+            padding: 10px;
+        }
+        
+        .metric-label { font-size: 8px; color: #888; text-transform: uppercase; }
+        .metric-value {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 16px; color: var(--plasma); margin-top: 4px;
+        }
+        
+        /* Synth Module */
+        .synth-arena { display: flex; flex-direction: column; gap: 12px; height: 100%; }
+        
+        .waveform-display {
+            height: 100px;
+            background: #000;
+            border: 1px solid var(--singularity);
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .waveform-fallback {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--plasma); font-size: 12px;
+        }
+        
+        .synth-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+        
+        .synth-cell {
+            aspect-ratio: 1;
+            background: rgba(0,240,255,0.05);
+            border: 1px solid var(--plasma);
+            border-radius: 10px;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            cursor: pointer; transition: all 0.2s;
+            font-size: 10px;
+        }
+        
+        .synth-cell:active {
+            background: var(--plasma); color: var(--void);
+            transform: scale(0.95);
+        }
+        
+        .cell-icon { font-size: 18px; margin-bottom: 4px; }
+        
+        /* Render Module */
+        .render-chamber {
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            height: 100%; gap: 20px;
+        }
+        
+        .quantum-sphere {
+            width: 120px; height: 120px;
+            position: relative {
+            width: 120px; height: 120px;
+            position: relative;
+            animation: sphereRotate 8s linear infinite;
+        }
+        
+        @keyframes sphereRotate {
+            from { transform: rotateX(0) rotateY(0); }
+            to { transform: rotateX(360deg) rotateY(360deg); }
+        }
+        
+        .sphere-ring {
+            position: absolute; top: 50%; left: 50%;
+            width: 100%; height: 100%;
+            border: 2px solid var(--plasma);
+            border-radius: 50%;
+            transform-style: preserve-3d;
+        }
+        
+        .sphere-ring:nth-child(1) { transform: translate(-50%, -50%) rotateX(0deg); }
+        .sphere-ring:nth-child(2) { transform: translate(-50%, -50%) rotateX(60deg); }
+        .sphere-ring:nth-child(3) { transform: translate(-50%, -50%) rotateX(120deg); }
+        
+        .quantum-btn {
+            padding: 12px 25px;
+            background: transparent;
+            border: 2px solid var(--plasma);
+            color: var(--plasma);
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+        }
+        
+        .quantum-btn:hover {
+            background: var(--plasma); color: var(--void);
+            box-shadow: 0 0 20px var(--plasma);
+        }
+        
+        /* Command Bar */
+        .command-bar {
+            display: grid; grid-template-columns: 1fr auto 1fr;
+            align-items: center; gap: 10px;
+        }
+        
+        .terminal-stream {
+            background: rgba(0,10,0,0.9);
+            border: 1px solid var(--matrix);
+            border-radius: 8px;
+            padding: 8px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 9px;
+            color: var(--matrix);
+            height: 55px;
+            overflow: hidden;
+        }
+        
+        .mode-selector {
+            display: flex; gap: 5px;
+            background: rgba(0,0,0,0.5);
+            padding: 4px;
+            border-radius: 20px;
+        }
+        
+        .mode-btn {
+            padding: 8px 15px;
+            background: transparent;
+            border: none;
+            color: #666;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            font-size: 10px;
+            cursor: pointer;
+            border-radius: 15px;
+            transition: all 0.3s;
+        }
+        
+        .mode-btn.active {
+            background: var(--plasma); color: var(--void);
+        }
+        
+        .system-stats {
+            display: flex; gap: 12px;
+            justify-content: flex-end;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 9px;
+        }
+        
+        .stat-item { text-align: center; }
+        .stat-value { color: var(--plasma); font-size: 12px; }
+        .stat-label { color: #666; font-size: 7px; }
+        
+        /* Error message */
+        .error-banner {
+            position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255,0,0,0.9);
+            color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            display: none;
+            z-index: 10000;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- Fallback background always visible -->
+    <div class="fallback-bg"></div>
+    
+    <!-- Canvas for enhanced effects (optional) -->
+    <canvas id="quantum-canvas"></canvas>
+    
+    <div class="hologram-layer">
+        <div class="neural-bar">
+            <div class="quantum-status">◉ QUANTUM_LINK: STABLE</div>
+            <div class="core-pulse"></div>
+            <div class="quantum-status" id="clock">00:00:00</div>
+        </div>
+        
+        <div class="quantum-workspace">
+            <div class="toolbar-vert">
+                <div class="tool-node active" onclick="switchModule('capture')">📷</div>
+                <div class="tool-node" onclick="switchModule('synth')">🎛️</div>
+                <div class="tool-node" onclick="switchModule('render')">🎬</div>
+            </div>
+            
+            <div class="viewport">
+                <div class="viewport-header">
+                    <div class="viewport-title" id="viewportTitle">FORENSIC_CAPTURE</div>
+                    <div style="font-size: 10px; color: var(--singularity);">● LIVE</div>
+                </div>
+                
+                <div class="module-container">
+                    <div class="quantum-module active" id="capture-module">
+                        <div class="capture-grid">
+                            <div class="quantum-lens">
+                                <video class="lens-feed" id="video" autoplay playsinline></video>
+                                <div class="lens-overlay"></div>
+                                <div class="lens-hud">
+                                    <span style="color: #ff006e;">●</span> REC<br>
+                                    QUANTUM_ENCRYPTED
+                                </div>
+                                <div class="lens-reticle"></div>
+                            </div>
+                            <div class="capture-metrics">
+                                <div class="metric-card">
+                                    <div class="metric-label">Signal</div>
+                                    <div class="metric-value" id="signalVal">98.4%</div>
+                                </div>
+                                <div class="metric-card">
+                                    <div class="metric-label">Entropy</div>
+                                    <div class="metric-value" id="entropyVal">99.9%</div>
+                                </div>
+                                <div class="metric-card">
+                                    <div class="metric-label">Threat</div>
+                                    <div class="metric-value" style="color: var(--event-horizon);" id="threatVal">MINIMAL</div>
+                                </div>
+                                <div class="metric-card">
+                                    <div class="metric-label">Data</div>
+                                    <div class="metric-value">12.4TB/s</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="quantum-module" id="synth-module">
+                        <div class="synth-arena">
+                            <div class="waveform-display" id="waveform-container">
+                                <div class="waveform-fallback">◈ AUDIO VISUALIZER ◈</div>
+                            </div>
+                            <div class="synth-grid">
+                                <div class="synth-cell" onclick="playTone(220, 'bass')">
+                                    <div class="cell-icon">🔊</div>BASS
+                                </div>
+                                <div class="synth-cell" onclick="playTone(440, 'lead')">
+                                    <div class="cell-icon">🎸</div>LEAD
+                                </div>
+                                <div class="synth-cell" onclick="playTone(880, 'hi')">
+                                    <div class="cell-icon">🎹</div>HI
+                                </div>
+                                <div class="synth-cell" onclick="playTone(110, 'sub')">
+                                    <div class="cell-icon">📢</div>SUB
+                                </div>
+                                <div class="synth-cell" onclick="playTone(330, 'pad')">
+                                    <div class="cell-icon">🎵</div>PAD
+                                </div>
+                                <div class="synth-cell" onclick="playTone(550, 'arp')">
+                                    <div class="cell-icon">✨</div>ARP
+                                </div>
+                                <div class="synth-cell" onclick="playTone(60, 'kick')">
+                                    <div class="cell-icon">🥁</div>KICK
+                                </div>
+                                <div class="synth-cell" onclick="playTone(200, 'snare')">
+                                    <div class="cell-icon">🎤</div>SNARE
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="quantum-module" id="render-module">
+                        <div class="render-chamber">
+                            <div class="quantum-sphere">
+                                <div class="sphere-ring"></div>
+                                <div class="sphere-ring"></div>
+                                <div class="sphere-ring"></div>
+                            </div>
+                            <button class="quantum-btn" onclick="dnaEncrypt()">DNA ENCRYPT</button>
+                            <button class="quantum-btn" onclick="quantumRender()">QUANTUM RENDER</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="toolbar-vert">
+                <div class="tool-node" onclick="toggleRec()">⏺️</div>
+                <div class="tool-node" onclick="snap()">📸</div>
+                <div class="tool-node" onclick="emergency()">⚠️</div>
+            </div>
+        </div>
+        
+        <div class="command-bar">
+            <div class="terminal-stream" id="terminal">
+                <div>> SYSTEM INITIALIZED...</div>
+                <div>> QUANTUM LINK ESTABLISHED...</div>
+            </div>
+            
+            <div class="mode-selector">
+                <button class="mode-btn active" onclick="setMode('forensic', this)">FORENSIC</button>
+                <button class="mode-btn" onclick="setMode('creative', this)">CREATIVE</button>
+            </div>
+            
+            <div class="system-stats">
+                <div class="stat-item"><div class="stat-value" id="cpu">12%</div><div class="stat-label">CPU</div></div>
+                <div class="stat-item"><div class="stat-value" id="mem">4.2</div><div class="stat-label">GB</div></div>
+                <div class="stat-item"><div class="stat-value" id="fps">60</div><div class="stat-label">FPS</div></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="error-banner" id="errorBanner">
+        <div>SYSTEM ERROR</div>
+        <div style="font-size: 12px; margin-top: 10px;" id="errorText"></div>
+    </div>
+
+    <script>
+        // Error handling wrapper
+        win
